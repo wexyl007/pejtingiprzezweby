@@ -2,6 +2,7 @@ package dev.wexyl.utils;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.wexyl.utils.config.ModConfig;
+import dev.wexyl.utils.feature.AutoDripstone;
 import dev.wexyl.utils.feature.CobwebPaintings;
 import dev.wexyl.utils.gui.FeaturesScreen;
 import net.fabricmc.api.ClientModInitializer;
@@ -31,5 +32,6 @@ public class WexylUtilsClient implements ClientModInitializer {
 
         // Tu rejestrujemy kolejne funkcje:
         CobwebPaintings.init();
+        AutoDripstone.init();
     }
 }

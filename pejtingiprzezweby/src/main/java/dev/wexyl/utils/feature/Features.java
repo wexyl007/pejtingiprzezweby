@@ -28,6 +28,21 @@ public final class Features {
             false,
             List.of(FAKE_NAME)));
 
+    public static final TextSetting DRIPSTONE_LENGTH = new TextSetting(
+            "auto_dripstone_length",
+            "Długość kolumny (1-8)",
+            "5",
+            1);
+
+    public static final Feature AUTO_DRIPSTONE = register(new Feature(
+            "auto_dripstone",
+            "AutoDripstone",
+            "Klik w zamknięty trapdoor dowolnego rodzaju (dolna połowa) błyskawicznie stawia pod nim kolumnę "
+                    + "pointed dripstone, a Twój klik otwiera trapdoor i ją zrzuca. Działa tylko na klikany "
+                    + "trapdoor. Potrzebny pointed dripstone w hotbarze. Shift = zwykłe otwieranie.",
+            false,
+            List.of(DRIPSTONE_LENGTH)));
+
     private static Feature register(Feature feature) {
         ALL.add(feature);
         return feature;
