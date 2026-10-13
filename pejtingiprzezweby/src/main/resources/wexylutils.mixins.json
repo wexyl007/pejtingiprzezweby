@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.wexyl.utils.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "StringDecomposerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

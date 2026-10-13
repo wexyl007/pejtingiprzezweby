@@ -3,9 +3,11 @@ package dev.wexyl.utils.gui;
 import dev.wexyl.utils.config.ModConfig;
 import dev.wexyl.utils.feature.Feature;
 import dev.wexyl.utils.feature.Features;
+import dev.wexyl.utils.feature.TextSetting;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -17,7 +19,7 @@ public class FeaturesScreen extends Screen {
     private final Screen parent;
 
     public FeaturesScreen(Screen parent) {
-        super(Component.literal("Wexyl Utils"));
+        super(Component.literal("Zjeb Client"));
         this.parent = parent;
     }
 
@@ -38,6 +40,17 @@ public class FeaturesScreen extends Screen {
                     .build();
             this.addRenderableWidget(button);
             y += 24;
+
+            for (TextSetting setting : feature.textSettings()) {
+                EditBox box = new EditBox(this.font, x, y, w, h, Component.literal(setting.label()));
+                box.setMaxLength(setting.maxLength());
+                box.setValue(ModConfig.getString(setting));
+                box.setResponder(value -> ModConfig.setString(setting, value));
+                box.setHint(Component.literal(setting.label()));
+                box.setTooltip(Tooltip.create(Component.literal(setting.label())));
+                this.addRenderableWidget(box);
+                y += 24;
+            }
         }
 
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose())

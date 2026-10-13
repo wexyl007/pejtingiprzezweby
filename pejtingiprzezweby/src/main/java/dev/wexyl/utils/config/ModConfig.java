@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dev.wexyl.utils.feature.Feature;
+import dev.wexyl.utils.feature.TextSetting;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -15,18 +16,18 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Zapisuje włączone/wyłączone funkcje w config/wexylutils.json. */
+/** Zapisuje ustawienia (ON/OFF i pola tekstowe) w config/wexylutils.json. */
 public final class ModConfig {
 
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("wexylutils.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Type MAP_TYPE = new TypeToken<Map<String, Boolean>>() { }.getType();
-    private static final Map<String, Boolean> VALUES = new HashMap<>();
+    private static final Type MAP_TYPE = new TypeToken<Map<String, Object>>() { }.getType();
+    private static final Map<String, Object> VALUES = new HashMap<>();
 
     public static void load() {
         if (!Files.exists(FILE)) return;
         try (Reader reader = Files.newBufferedReader(FILE)) {
-            Map<String, Boolean> loaded = GSON.fromJson(reader, MAP_TYPE);
+            Map<String, Object> loaded = GSON.fromJson(reader, MAP_TYPE);
             if (loaded != null) VALUES.putAll(loaded);
         } catch (IOException | RuntimeException e) {
             System.err.println("[WexylUtils] Nie udało się wczytać configu: " + e);
@@ -34,11 +35,22 @@ public final class ModConfig {
     }
 
     public static boolean isEnabled(Feature feature) {
-        return VALUES.getOrDefault(feature.id(), feature.defaultEnabled());
+        Object value = VALUES.get(feature.id());
+        return value instanceof Boolean b ? b : feature.defaultEnabled();
     }
 
     public static void set(Feature feature, boolean enabled) {
         VALUES.put(feature.id(), enabled);
+        save();
+    }
+
+    public static String getString(TextSetting setting) {
+        Object value = VALUES.get(setting.key());
+        return value instanceof String s ? s : setting.defaultValue();
+    }
+
+    public static void setString(TextSetting setting, String value) {
+        VALUES.put(setting.key(), value);
         save();
     }
 

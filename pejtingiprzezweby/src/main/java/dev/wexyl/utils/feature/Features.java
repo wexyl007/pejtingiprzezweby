@@ -15,6 +15,19 @@ public final class Features {
             "Stawiaj obrazy (paintingi) na ścianie przez pajęczyny.",
             false));
 
+    public static final TextSetting FAKE_NAME = new TextSetting(
+            "name_protect_fake_name",
+            "Fałszywy nick",
+            "Player",
+            32);
+
+    public static final Feature NAME_PROTECT = register(new Feature(
+            "name_protect",
+            "NameProtect",
+            "Zmienia Twój nick widoczny u Ciebie (czat, lista graczy itd.). Inni dalej widzą prawdziwy.",
+            false,
+            List.of(FAKE_NAME)));
+
     private static Feature register(Feature feature) {
         ALL.add(feature);
         return feature;
