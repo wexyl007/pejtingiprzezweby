@@ -4,9 +4,7 @@ import dev.wexyl.utils.config.ModConfig;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
@@ -42,7 +40,7 @@ public final class AutoDripstone {
     public static void init() {
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
             if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-            if (!(level instanceof ClientLevel clientLevel)) return InteractionResult.PASS;
+            if (!level.isClientSide) return InteractionResult.PASS;
             if (!ModConfig.isEnabled(Features.AUTO_DRIPSTONE)) return InteractionResult.PASS;
             // Shift = zwykłe zachowanie gry, moduł nic nie robi.
             if (player.isSpectator() || player.isShiftKeyDown()) return InteractionResult.PASS;
@@ -81,7 +79,7 @@ public final class AutoDripstone {
             for (int i = 0; i < supports.size(); i++) {
                 // Pierwsze postawienie jest "o trapdoor", więc serwer musi widzieć sneak.
                 if (i == 0) sendInput(connection, mc.options, true);
-                sendUse(clientLevel, connection, supports.get(i));
+                sendUse(connection, supports.get(i));
                 if (i == 0) sendInput(connection, mc.options, mc.options.keyShift.isDown());
             }
             connection.send(new ServerboundSetCarriedItemPacket(player.getInventory().selected));
@@ -91,13 +89,11 @@ public final class AutoDripstone {
         });
     }
 
-    private static void sendUse(ClientLevel level, ClientPacketListener connection, BlockPos support) {
+    private static void sendUse(ClientPacketListener connection, BlockPos support) {
         BlockHitResult hit = new BlockHitResult(
                 Vec3.atBottomCenterOf(support), Direction.DOWN, support, false);
-        try (BlockStatePredictionHandler handler = level.getBlockStatePredictionHandler().startPredicting()) {
-            connection.send(new ServerboundUseItemOnPacket(
-                    InteractionHand.MAIN_HAND, hit, handler.currentSequence()));
-        }
+        // Serwer przyjmuje dowolny numer sekwencji >= 0, więc nie potrzebujemy licznika z gry.
+        connection.send(new ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND, hit, 0));
     }
 
     private static void sendInput(ClientPacketListener connection, Options o, boolean sneak) {
